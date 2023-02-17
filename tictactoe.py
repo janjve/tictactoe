@@ -1,14 +1,44 @@
 import re
 
+from rich.console import Console
+from rich.table import Table
+from rich import box
+from rich.text import Text
+
 from typing import Optional, List, Tuple
 
 
 Board = List[List[Optional[int]]]
-
+console = Console()
 
 def show_board(board: Board):
+    console.clear()
+    table = Table(show_header=False, show_lines=True)
+
+    # table.add_row("1", justify="right", style="cyan", no_wrap=True)
+    placeholders = "789456123"
+    i = 0
     for row in board:
-        print(*row)
+        table_row_content = []
+        for cell in row:
+            if cell is None:
+                text = Text(f"{placeholders[i]}")
+                text.stylize("grey3", 0, 1)
+            elif cell == 0:
+                text = Text("X")
+                text.stylize("bold green", 0, 1)
+            elif cell == 1:
+                text = Text("O")
+                text.stylize("bold magenta", 0, 1)
+
+            table_row_content.append(text)
+            i += 1
+        table.add_row(*table_row_content)
+
+
+    console.print(table)
+
+
 
 
 def init_board() -> Board:
@@ -35,7 +65,7 @@ def is_winner(board, player):
         return True
 
     # diagonal ascending
-    if all(board[idx][idx] == player for idx in range(n - 1, -1, -1)):
+    if all(board[idx][n - 1 - idx] == player for idx in range(n - 1, -1, -1)):
         return True
 
     return False
@@ -52,17 +82,25 @@ def is_valid_move(board: Board, row: int, col: int) -> bool:
 
 
 def try_parse_input(board: Board, input_str: str) -> Optional[Tuple[int, int]]:
-    # invalid if not exactly two integers
-    if not re.match(r"^\d\d$", input_str):
+    key_map = {
+        '7': (0,0),
+        '8': (0,1),
+        '9': (0,2),
+        '4': (1,0),
+        '5': (1,1),
+        '6': (1,2),
+        '1': (2,0),
+        '2': (2,1),
+        '3': (2,2),
+    }
+
+    move = key_map.get(input_str)
+
+    # invalid if not single digit
+    if move is None or not is_valid_move(board, *move):
         return None
 
-    # cast to integers
-    row, col = [int(x) for x in input_str]
-
-    if not is_valid_move(board, row, col):
-        return None
-
-    return row, col
+    return move
 
 
 def main():
@@ -78,7 +116,7 @@ def main():
         row, col = -1, -1
 
         while True:
-            input_str = input(f"Make a move player {current_player}: ")
+            input_str = input(f"Player {current_player} make a move: ")
             parsed_input = try_parse_input(board, input_str)
             if parsed_input is not None:
                 row, col = parsed_input
@@ -91,12 +129,12 @@ def main():
         prev_player, current_player = current_player, next_player(current_player)
 
         i += 1
-
+    
     show_board(board)
     for player in [0, 1]:
         if is_winner(board, player):
             print(f"Player {player} won!")
-
+    
 
 if __name__ == "__main__":
     SystemExit(main())
