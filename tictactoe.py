@@ -1,3 +1,4 @@
+import random
 import re
 
 from rich.console import Console
@@ -6,12 +7,13 @@ from rich import box
 from rich.text import Text
 
 from typing import Optional, List, Tuple
+import game
+import ai
 
 
-Board = List[List[Optional[int]]]
 console = Console()
 
-def show_board(board: Board):
+def display_board(board: game.Board):
     console.clear()
     table = Table(show_header=False, show_lines=True)
 
@@ -39,49 +41,7 @@ def show_board(board: Board):
     console.print(table)
 
 
-
-
-def init_board() -> Board:
-    return [[None] * 3 for _ in range(3)]
-
-
-def make_move(board: Board, row: int, col: int, player: int):
-    board[row][col] = player
-
-
-def is_winner(board, player):
-    n = len(board)
-
-    for row in board:
-        if all(cell == player for cell in row):
-            return True
-
-    for col_idx in range(n):
-        if all(row[col_idx] == player for row in board):
-            return True
-
-    # diagonal descending
-    if all(board[idx][idx] == player for idx in range(n)):
-        return True
-
-    # diagonal ascending
-    if all(board[idx][n - 1 - idx] == player for idx in range(n - 1, -1, -1)):
-        return True
-
-    return False
-
-
-def next_player(current_player: int):
-    # player 0 and player 1
-    return 1 - current_player
-
-
-def is_valid_move(board: Board, row: int, col: int) -> bool:
-    n = len(board)
-    return 0 <= row < n and 0 <= col < n and board[row][col] is None
-
-
-def try_parse_input(board: Board, input_str: str) -> Optional[Tuple[int, int]]:
+def try_parse_input(board: game.Board, input_str: str) -> Optional[Tuple[int, int]]:
     key_map = {
         '7': (0,0),
         '8': (0,1),
@@ -97,22 +57,59 @@ def try_parse_input(board: Board, input_str: str) -> Optional[Tuple[int, int]]:
     move = key_map.get(input_str)
 
     # invalid if not single digit
-    if move is None or not is_valid_move(board, *move):
+    if move is None or not game.is_valid_move(board, *move):
         return None
 
     return move
 
-
-def main():
-    board = init_board()
+def main_pve():
+    board = game.init_board()
     cell_count = len(board) * len(board[0])
 
     i = 0
     prev_player = 0
-    current_player = next_player(prev_player)
+    current_player = game.next_player(prev_player)
+    computer_player = [current_player, prev_player][random.randint(0, 1)]
 
-    while not is_winner(board, prev_player) and i < cell_count:
-        show_board(board)
+    while not game.is_winner(board, prev_player) and i < cell_count:
+        display_board(board)
+        row, col = -1, -1
+
+        if current_player == computer_player:
+            row, col = ai.random_ai(board, computer_player)
+        else:
+            while True:
+                input_str = input(f"Player {current_player} make a move: ")
+                parsed_input = try_parse_input(board, input_str)
+                if parsed_input is not None:
+                    row, col = parsed_input
+                    break
+                else:
+                    print(f"invalid input '{input_str}'. Try again.")
+
+        game.make_move(board, row, col, current_player)
+
+        prev_player, current_player = current_player, game.next_player(current_player)
+
+        i += 1
+    
+    display_board(board)
+    if game.is_winner(board, computer_player):
+        print("Sorry you lost! :(")
+    else:
+        print("You won!")
+
+
+def main_pvp():
+    board = game.init_board()
+    cell_count = len(board) * len(board[0])
+
+    i = 0
+    prev_player = 0
+    current_player = game.next_player(prev_player)
+
+    while not game.is_winner(board, prev_player) and i < cell_count:
+        display_board(board)
         row, col = -1, -1
 
         while True:
@@ -124,17 +121,21 @@ def main():
             else:
                 print(f"invalid input '{input_str}'. Try again.")
 
-        make_move(board, row, col, current_player)
+        game.make_move(board, row, col, current_player)
 
-        prev_player, current_player = current_player, next_player(current_player)
+        prev_player, current_player = current_player, game.next_player(current_player)
 
         i += 1
     
-    show_board(board)
+    display_board(board)
     for player in [0, 1]:
-        if is_winner(board, player):
+        if game.is_winner(board, player):
             print(f"Player {player} won!")
-    
+
+def main():
+    while True:
+        main_pve()
+        input()
 
 if __name__ == "__main__":
     SystemExit(main())
