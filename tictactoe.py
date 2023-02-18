@@ -62,7 +62,9 @@ def try_parse_input(board: game.Board, input_str: str) -> Optional[Tuple[int, in
 
     return move
 
+
 def main_pve():
+    ai_player = ai.greedy
     board = game.init_board()
     cell_count = len(board) * len(board[0])
 
@@ -76,7 +78,7 @@ def main_pve():
         row, col = -1, -1
 
         if current_player == computer_player:
-            row, col = ai.random_ai(board, computer_player)
+            row, col = ai_player(board, computer_player)
         else:
             while True:
                 input_str = input(f"Player {current_player} make a move: ")
@@ -131,6 +133,7 @@ def main_pvp():
     for player in [0, 1]:
         if game.is_winner(board, player):
             print(f"Player {player} won!")
+
 
 def main():
     while True:
