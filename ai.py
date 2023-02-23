@@ -46,7 +46,7 @@ def minimax(board: game.Board, ai_player: int):
         return score
 
 
-    best_move = None
+    best_moves = []
     best_score = -math.inf
     for row, col in game.get_possible_moves(board):
         board[row][col] = ai_player
@@ -54,7 +54,10 @@ def minimax(board: game.Board, ai_player: int):
         print("score", score)
         board[row][col] = None
         if score > best_score:
-            best_move = (row, col)
+            best_moves = [(row, col)]
             best_score = score
+        elif score == best_score:
+            best_moves.append((row, col))
 
-    return best_move
+    best_move_idx = random.randint(0, len(best_moves) - 1)
+    return best_moves[best_move_idx]
