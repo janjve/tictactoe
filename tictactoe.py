@@ -64,7 +64,7 @@ def try_parse_input(board: game.Board, input_str: str) -> Optional[Tuple[int, in
 
 
 def main_pve():
-    ai_player = ai.greedy
+    ai_player = ai.minimax
     board = game.init_board()
     cell_count = len(board) * len(board[0])
 
@@ -98,8 +98,10 @@ def main_pve():
     display_board(board)
     if game.is_winner(board, computer_player):
         print("Sorry you lost! :(")
-    else:
+    elif game.is_winner(board, game.next_player(computer_player)):
         print("You won!")
+    else:
+        print("Draw -.-")
 
 
 def main_pvp():

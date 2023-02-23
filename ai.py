@@ -1,6 +1,5 @@
+import math
 import random
-from copy import deepcopy
-from typing import List, Optional, Tuple
 
 import game
 
@@ -16,53 +15,46 @@ def randomize(board: game.Board, *_):
 
     return move
 
+def minimax(board: game.Board, ai_player: int):
 
-def greedy(board: game.Board, ai_player: int):
-    board = deepcopy(board)
-    n = len(board)
-
+    opponent_player = game.next_player(ai_player)
     memo = {}
 
-    def win_loss(board, current_player) -> Tuple[int, int]:
+    def minimax_(board, is_maximizing=False):
         board_tuple = tuple(tuple(x) for x in board)
-        if (board_tuple, current_player) in memo:
-            return memo[(board_tuple, current_player)]
-
+        if (board_tuple, is_maximizing) in memo:
+            return memo[(board_tuple, is_maximizing)]
         if game.is_winner(board, ai_player):
-            return (1, 0)
-        elif game.is_winner(board, game.next_player(ai_player)):
-            return (0, 1)
-        
-        wins = 0
-        losses = 0
-        for row in range(n):
-            for col in range(n):
-                if game.is_valid_move(board, row, col):
-                    game.make_move(board, row, col, current_player)
-                    win_d, loss_d = win_loss(board, game.next_player(ai_player))
-                    wins += win_d
-                    losses += loss_d
-                    board[row][col] = None
+            return 1
+        elif game.is_winner(board, opponent_player):
+            return -1
+        elif game.is_done(board):
+            return 0
 
-        memo[(board_tuple, current_player)] = (wins, losses)
+        scores = []
 
-        return memo[(board_tuple, current_player)]
+        for row, col in game.get_possible_moves(board):
+            board[row][col] = ai_player if is_maximizing else opponent_player
+            scores.append(minimax_(board, not is_maximizing))
+            board[row][col] = None
+
+        if is_maximizing:
+            score = max(scores)
+        else:
+            score = min(scores)
+        memo[(board_tuple, is_maximizing)] = score
+        return score
 
 
-    best_ratio = 0.0
-    move = (0,0)
-    for row in range(n):
-        for col in range(n):
-            if game.is_valid_move(board, row, col):
-                game.make_move(board, row, col, ai_player)
-                wins, losses = win_loss(board, game.next_player(ai_player))
-                ratio = (wins + 0.01) / (losses + 0.01)
-                if ratio > best_ratio:
-                    best_ratio = ratio
-                    move = (row, col)
-                    
-                board[row][col] = None
+    best_move = None
+    best_score = -math.inf
+    for row, col in game.get_possible_moves(board):
+        board[row][col] = ai_player
+        score = minimax_(board)
+        print("score", score)
+        board[row][col] = None
+        if score > best_score:
+            best_move = (row, col)
+            best_score = score
 
-    print(f"Picking move {move} with ratio {best_ratio}")
-
-    return move
+    return best_move
