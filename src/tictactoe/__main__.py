@@ -127,7 +127,7 @@ def main_pve():
 
 
 def main_pvp():
-    board = game.Board()
+    board = game.Board(3)
     cell_count = len(board) * len(board[0])
 
     i = 0
@@ -161,7 +161,7 @@ def main_pvp():
 
 def main():
     while True:
-        main_pve()
+        main_pvp()
         input()
 
 if __name__ == "__main__":
