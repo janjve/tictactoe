@@ -1,3 +1,4 @@
+import random
 from rich.console import Console
 from rich.table import Table
 from rich import box
@@ -83,21 +84,22 @@ def try_parse_input(board: game.Board, input_str: str) -> Optional[Tuple[int, in
 
 def main_pve():
     ai_player = ai.minimax
-    board = game.Board(4)
+    board = game.Board(3)
     cell_count = len(board) * len(board[0])
 
     i = 0
     prev_player = 0
     current_player = board.next_player(prev_player)
-    # computer_player = [current_player, prev_player][random.randint(0, 1)]
-    computer_player = 0
+    players = [prev_player, current_player]
+    # random.shuffle(players)
+    ai_player_id, human_player_id = players
 
-    while not board.is_winner(prev_player) and i < cell_count:
+    while board.winner() is None and i < cell_count:
         display_board(board)
         row, col = -1, -1
 
-        if current_player == computer_player:
-            row, col = ai_player(board, computer_player)
+        if current_player == ai_player_id:
+            row, col = ai_player(board, ai_player_id)
         else:
             while True:
                 input_str = input(f"Player {current_player} make a move: ")
@@ -115,9 +117,10 @@ def main_pve():
         i += 1
     
     display_board(board)
-    if board.is_winner(computer_player):
+    winner = board.winner()
+    if winner == ai_player_id:
         print("Sorry you lost! :(")
-    elif board.is_winner(board.next_player(computer_player)):
+    elif winner == human_player_id:
         print("You won!")
     else:
         print("Draw :|")
@@ -161,7 +164,7 @@ def main_pvp():
 
 def main():
     while True:
-        main_pvp()
+        main_pve()
         input()
 
 if __name__ == "__main__":

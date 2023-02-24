@@ -1,4 +1,3 @@
-import itertools
 import math
 import random
 
@@ -26,22 +25,25 @@ def minimax(board: game.Board, ai_player: int):
         if (board_tuple, is_maximizing) in memo:
             return memo[(board_tuple, is_maximizing)]
         
-        if board.is_winner(ai_player):
-            return (1, (None,None))
-        elif board.is_winner(opponent_player):
-            return (-1, (None,None))
+        winner = board.winner()
+        if winner is not None:
+            score = 1 if winner == ai_player else -1
+            memo[(board_tuple, is_maximizing)] = (score, (None, None))
+            return memo[(board_tuple, is_maximizing)]
         elif board.is_done():
-            return (0, (None,None))
+            memo[(board_tuple, is_maximizing)] = (0, (None, None))
+            return memo[(board_tuple, is_maximizing)]
         
         moves = list(board.get_possible_moves())
-        random.shuffle(moves)
+        # random.shuffle(moves)
         best_move = None
         if is_maximizing:
             best_score = -math.inf
             for row, col in moves:
-                board[row][col] = ai_player
+                board.make_move(row, col, ai_player)
                 score, _ = minimax_(board, not is_maximizing, alpha, beta)
-                board[row][col] = None
+                board.revert_move()
+
                 if score > best_score:
                     best_move = (row, col)
                     best_score = score
@@ -52,9 +54,9 @@ def minimax(board: game.Board, ai_player: int):
         else:
             best_score = math.inf
             for row, col in moves:
-                board[row][col] = opponent_player
+                board.make_move(row, col, opponent_player)
                 score, _ = minimax_(board, not is_maximizing, alpha, beta)
-                board[row][col] = None
+                board.revert_move()
 
                 if score < best_score:
                     best_move = (row, col)
