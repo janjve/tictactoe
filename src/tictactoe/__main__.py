@@ -11,7 +11,7 @@ from tictactoe import game, ai
 console = Console()
 
 def display_board(board: game.Board):
-    console.clear()
+    # console.clear()
     table = Table(show_header=False, show_lines=True)
     if len(board) == 3:
         placeholders = "789456123"

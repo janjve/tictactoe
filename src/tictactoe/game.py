@@ -6,7 +6,8 @@ class Board:
     def __init__(self, n: int, k: int = None) -> None:
         if k is None:
             k = n
-
+        
+        self.n = n
         self.state = [[None] * n for _ in range(n)]
         self.k = k
         self.history: List[Move] = []
@@ -70,14 +71,13 @@ class Board:
         return 1 - player
     
     def inside_board(self, row: int, col: int) -> bool:
-        n = len(self)
-        return 0 <= row < n and 0 <= col < n
+        return 0 <= row < self.n and 0 <= col < self.n
 
     def is_valid_move(self, row: int, col: int) -> bool:
         return self.inside_board(row, col) and self[row][col] is None
 
     def is_done(self) -> bool:
-        return len(self.history) == len(self) * 2
+        return len(self.history) == (self.n ** 2)
     
     def get_possible_moves(self) -> List[Move]:
         possible_moves = []
