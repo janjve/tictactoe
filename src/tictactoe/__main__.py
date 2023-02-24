@@ -11,7 +11,7 @@ from tictactoe import game, ai
 console = Console()
 
 def display_board(board: game.Board):
-    # console.clear()
+    console.clear()
     table = Table(show_header=False, show_lines=True)
     if len(board) == 3:
         placeholders = "789456123"
@@ -82,16 +82,16 @@ def try_parse_input(board: game.Board, input_str: str) -> Optional[Tuple[int, in
     return move
 
 
-def main_pve():
+def main_pve(n):
     ai_player = ai.minimax
-    board = game.Board(3)
+    board = game.Board(n)
     cell_count = len(board) * len(board[0])
 
     i = 0
     prev_player = 0
     current_player = board.next_player(prev_player)
     players = [prev_player, current_player]
-    # random.shuffle(players)
+    random.shuffle(players)
     ai_player_id, human_player_id = players
 
     while board.winner() is None and i < cell_count:
@@ -126,8 +126,8 @@ def main_pve():
         print("Draw :|")
 
 
-def main_pvp():
-    board = game.Board(3)
+def main_pvp(n):
+    board = game.Board(n)
     cell_count = len(board) * len(board[0])
 
     i = 0
@@ -164,8 +164,20 @@ def main_pvp():
 
 def main():
     while True:
-        main_pve()
-        input()
+        mode = ''
+        while mode not in ['e3', 'e4', 'p3', 'p4']:
+            mode = input("What PvX game-mode on board NxN would you like? [E3/e4/p3/p4] ")
+            mode = mode.strip().lower()
+            if not mode:
+                mode = 'e3'
+                
+        pvx = mode[0]
+        n = int(mode[1])
+
+        if pvx == 'p':
+            main_pvp(n)
+        else:
+            main_pve(n)
 
 if __name__ == "__main__":
     SystemExit(main())

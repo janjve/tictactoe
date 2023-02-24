@@ -2,10 +2,10 @@
 
 Install
 ```
-pip install -r requirements.txt
+pip install .
 ```
 
 Run
 ```
-$ python tictactoe.py
+$ python -m tictactoe
 ```
