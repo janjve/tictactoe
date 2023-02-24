@@ -8,7 +8,7 @@ class Board:
             k = n
 
         self.state = [[None] * n for _ in range(n)]
-        self.k = 2
+        self.k = k
         self.history: List[Move] = []
 
     def __getitem__(self, i):
