@@ -36,7 +36,7 @@ class Board:
         move_row, move_col = self.history[-1]
         player = self[move_row][move_col]
 
-        # check for horizontal win
+        # check for win in horizontal, vertical and the two diagonal directions
         directions = [(0,1), (1,0), (1, 1), (-1, 1)]
 
         # check each direction
