@@ -1,13 +1,10 @@
-import random
-
 from rich.console import Console
 from rich.table import Table
 from rich import box
 from rich.text import Text
 
 from typing import Optional, List, Tuple
-import game
-import ai
+from tictactoe import game, ai
 
 
 console = Console()
@@ -134,7 +131,7 @@ def main_pvp():
     prev_player = 0
     current_player = board.next_player(prev_player)
 
-    while not board.is_winner(prev_player) and i < cell_count:
+    while board.winner() is None and i < cell_count:
         display_board(board)
         row, col = -1, -1
 
@@ -154,9 +151,12 @@ def main_pvp():
         i += 1
     
     display_board(board)
-    for player in [0, 1]:
-        if board.is_winner(player):
-            print(f"Player {player} won!")
+    winner = board.winner()
+    if winner is not None:
+        print(f"Player {winner} won!")
+    else:
+        print("It was a draw")
+
 
 
 def main():

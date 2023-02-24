@@ -2,7 +2,7 @@ import itertools
 import math
 import random
 
-import game
+from tictactoe import game
 
 
 def randomize(board: game.Board, *_):

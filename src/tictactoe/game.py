@@ -20,7 +20,7 @@ class Board:
     def make_move(self, row: int, col: int, player: int):
         self[row][col] = player
         self.history.append((row, col))
-
+        
     def revert_move(self):
         if self.history:
             row, col = self.history.pop()
@@ -62,7 +62,8 @@ class Board:
             # player has won by having k elements in current direction
             if count == self.k:
                 return player
-            
+        
+        # no win condition found in any directions for previous move player
         return None
 
     def winner_old(self):
